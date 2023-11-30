@@ -1,6 +1,6 @@
 function fetchWorks() {
   fetch("http://localhost:5678/api/works", {
-    method: "GET",
+
   })
     .then((response) => {
       if (!response.ok) {
@@ -42,67 +42,83 @@ document.addEventListener("DOMContentLoaded", fetchWorks);
 
 export { fetchWorks };
 
-function fetchCategories() {
-  fetch("http://localhost:5678/api/categories", {
-    method: "GET",
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP! Statut : ${response.status}`);
-      }
-      return response.json();
-    })
-    .then((categories) => {
-      if (categories) {
-        createCategoryButtons(categories);
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur lors de la requête fetch:", error);
+
+// Récupérer le conteneur des éléments à trier
+const itemsContainer = document.querySelector(".gallery");
+
+async function afficherToutesLesImages() {
+  // Effacer les éléments actuels dans le conteneur
+  itemsContainer.innerHTML = "";
+
+  // Effectuer une requête Fetch pour obtenir toutes les données de l'API
+  const response = await fetch("http://localhost:5678/api/works/")
+    .then((response) => response.json())
+    .then((data) => {
+      // Parcourir tous les éléments et les ajouter au conteneur
+      data.forEach((element) => {
+        const figure = document.createElement("figure");
+        const image = document.createElement("img");
+        image.src = element.imageUrl;
+        const caption = document.createElement("figcaption");
+        caption.textContent = element.title;
+
+        figure.appendChild(image);
+        figure.appendChild(caption);
+        itemsContainer.appendChild(figure);
+      });
     });
 }
 
-function createCategoryButtons(categories) {
-  const portfolioSection = document.getElementById("portfolio");
 
-  // Création de la div pour les boutons de catégories
-  const categoryButtonsDiv = document.createElement("div");
-  categoryButtonsDiv.classList.add("category-buttons");
+async function trierParCategorie(categorie) {
+ 
+  itemsContainer.innerHTML = "";
 
-  // Création d'un bouton pour afficher tous les projets
-  const allButton = createCategoryButton("Tous", "all");
-  categoryButtonsDiv.appendChild(allButton);
+ 
+  const response = await fetch("http://localhost:5678/api/works/")
+    .then((response) => response.json())
+    .then((data) => {
+  
+      const elementsFiltres = data.filter(
+        (element) => element.category.name === categorie
+      );
 
-  // Création des boutons pour chaque catégorie
-  categories.forEach((category) => {
-    const categoryButton = createCategoryButton(category.name, category.id);
-    categoryButtonsDiv.appendChild(categoryButton);
-  });
+     
+      elementsFiltres.forEach((element) => {
+        const figure = document.createElement("figure");
+        const image = document.createElement("img");
+        image.src = element.imageUrl;
+        const caption = document.createElement("figcaption");
+        caption.textContent = element.title;
 
-  // Ajout de la div des boutons à la section du portfolio
-  portfolioSection.appendChild(categoryButtonsDiv);
+        figure.appendChild(image);
+        figure.appendChild(caption);
+        itemsContainer.appendChild(figure);
+      });
+    });
 }
 
-function createCategoryButton(label, value) {
-  const button = document.createElement("button");
-  button.textContent = label;
-  button.value = value;
 
-  // Ajout d'un écouteur d'événements pour mettre à jour la galerie en fonction du bouton cliqué
-  button.addEventListener("click", function () {
-    const selectedCategory = this.value;
-    filterGalleryByCategory(selectedCategory);
-  });
+const tousBtn = document.createElement("button");
+tousBtn.textContent = "Tous";
+tousBtn.addEventListener("click", afficherToutesLesImages);
+document.querySelector(".filtre").appendChild(tousBtn);
 
-  return button;
-}
+const objetsBtn = document.createElement("button");
+objetsBtn.textContent = "Objets";
+objetsBtn.addEventListener("click", () => trierParCategorie("Objets"));
+document.querySelector(".filtre").appendChild(objetsBtn);
 
-function filterGalleryByCategory(selectedCategory) {
-  // TODO: Ajoutez ici le code pour filtrer la galerie en fonction de la catégorie sélectionnée
-  // Vous pouvez utiliser la variable selectedCategory pour obtenir la catégorie sélectionnée
-}
+const appartementsBtn = document.createElement("button");
+appartementsBtn.textContent = "Appartements";
+appartementsBtn.addEventListener("click", () =>
+  trierParCategorie("Appartements")
+);
+document.querySelector(".filtre").appendChild(appartementsBtn);
 
-document.addEventListener("DOMContentLoaded", function () {
-  fetchCategories();
-  fetchWorks();
-});
+const hotelsBtn = document.createElement("button");
+hotelsBtn.textContent = "Hotels & restaurants";
+hotelsBtn.addEventListener("click", () =>
+  trierParCategorie("Hotels & restaurants")
+);
+document.querySelector(".filtre").appendChild(hotelsBtn);
