@@ -37,7 +37,7 @@ async function identification() {
       localStorage.setItem("token", undefined);
       localStorage.setItem("login", undefined);
       alert(
-        "Erreur d'identification, verifiez votre identifiant ou mot de passe."
+        "Erreur d'identification, identifiant ou mot de passe incorrect ."
       );
     }
   } catch (e) {
