@@ -248,11 +248,7 @@ fetch("http://localhost:5678/api/works/")
       icon.classList.add("icon");
       icon.id = `${work.id}`;
       figure.appendChild(icon);
-
-
-      const edit = document.createElement("figcaption");
-      edit.innerText = "éditer";
-      figure.appendChild(edit);
+      
 
       imgContainer.appendChild(figure);
     });
@@ -368,8 +364,6 @@ function addPicture() {
       const image = document.createElement("img");
       image.classList.add("image-modale")
       image.src = dataResponse.imageUrl;
-      const caption = document.createElement("figcaption");
-      caption.innerText = "éditer";
       const icon = document.createElement("img");
       icon.classList.add("icon");
       figure.appendChild(icon);
