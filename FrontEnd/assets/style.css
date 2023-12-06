@@ -528,6 +528,7 @@ footer nav ul {
 		justify-content:flex-start;
 		align-items:center;
 		margin-left: 55px;
+		display: flex;
 	}
 	figure .change p {
 		font-family: "Work Sans";

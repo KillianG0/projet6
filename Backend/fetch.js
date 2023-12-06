@@ -326,14 +326,15 @@ function addPicture() {
     console.log(inputCategory);
     console.log(token);
   });
-  //changement de la couleur du bouton si tout les élèments sont remplis pour la validation du projet//
-  form2.addEventListener("change", () => {
+  //changement de la couleur du bouton si tout les élèments sont remplis pour la validation du projet
+  /*form2.addEventListener("change", () => {
     if (imgPreview && inputTitle && inputCategory ) {
       submitProject.style.background = "#1d6154";
     } else {
       submitProject.style.background = "";
     }
-  });
+  });*/
+  
   //soumettre le projet//
   submitProject.addEventListener("click", (e) => {
     e.preventDefault();
@@ -376,6 +377,11 @@ function addPicture() {
           console.log("il y a eu une erreur sur le fetch");
         }
       }
+    } else {
+      alert( 
+        "Titre ou catégorie incorrect."
+
+      )
     }
   });
 }
