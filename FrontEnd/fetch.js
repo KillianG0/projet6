@@ -145,11 +145,15 @@ editionActive();
 
 /* se déconnecter avec logout */
 
-log.addEventListener("click", () => {
-  localStorage.removeItem("login");
-  localStorage.removeItem("token");
-  log.innerText = "login";
-  localStorage.clear;
+log.addEventListener("click", (event) => {
+  if (localStorage.getItem("login") && localStorage.getItem ("token")){
+    event.preventDefault()
+    localStorage.removeItem("login");
+    localStorage.removeItem("token");
+    log.innerText = "logout";
+    window.location.href = "./index.html";
+    localStorage.clear;
+  }
 });
 
 /*on recupère les elements dans le document qui vont  permettre d'ouvrir la fenetre*/
@@ -244,7 +248,9 @@ fetch("http://localhost:5678/api/works/")
       figure.appendChild(imageModale);
       imageModale.classList.add("image-modale");
 
-      const icon = document.createElement("img");
+      const icon = document.createElement("i");
+      icon.classList.add("fa-trash-can");
+      icon.classList.add("fa-solid");
       icon.classList.add("icon");
       icon.id = `${work.id}`;
       figure.appendChild(icon);
@@ -327,13 +333,13 @@ function addPicture() {
     console.log(token);
   });
   //changement de la couleur du bouton si tout les élèments sont remplis pour la validation du projet
-  /*form2.addEventListener("change", () => {
+  form2.addEventListener("change", () => {
     if (imgPreview && inputTitle && inputCategory ) {
       submitProject.style.background = "#1d6154";
     } else {
       submitProject.style.background = "";
     }
-  });*/
+  });
   
   //soumettre le projet//
   submitProject.addEventListener("click", (e) => {
