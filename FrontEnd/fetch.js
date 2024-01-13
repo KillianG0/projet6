@@ -302,3 +302,4 @@ function addPicture() {
   });
 }
 addPicture();
+
