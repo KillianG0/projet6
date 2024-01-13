@@ -24,21 +24,36 @@ async function fetchWorks() {
   }
 }
 
-async function updateGallery(result) {
+async function updateGallery(result, action = "update") {
   console.log(result);
   const gallery = document.querySelector(".gallery");
-  gallery.innerHTML = "";
-  result.forEach((item) => {
+
+  if (action === "add") {
     const figure = document.createElement("figure");
     const img = document.createElement("img");
     const figcaption = document.createElement("figcaption");
-    img.src = item.imageUrl;
-    img.alt = item.title;
-    figcaption.textContent = item.title;
+    img.src = result.imageUrl;
+    img.alt = result.title;
+    figcaption.textContent = result.title;
     figure.appendChild(img);
     figure.appendChild(figcaption);
     gallery.appendChild(figure);
-  });
+ 
+    }
+  else {
+    gallery.innerHTML = ""; 
+    result.forEach((item) => {
+      const figure = document.createElement("figure");
+      const img = document.createElement("img");
+      const figcaption = document.createElement("figcaption");
+      img.src = item.imageUrl;
+      img.alt = item.title;
+      figcaption.textContent = item.title;
+      figure.appendChild(img);
+      figure.appendChild(figcaption);
+      gallery.appendChild(figure);
+    });
+  }
 }
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchCategories();
@@ -279,21 +294,16 @@ function addPicture() {
           });
           const dataResponse = await response.json();
           console.log(dataResponse);
-          /* Ajouter l'image à la galerie sans rechargement de la page*/
-          const figure = document.createElement("figure");
-          const image = document.createElement("img");
-          image.classList.add("image-modale");
-          image.src = dataResponse.imageUrl;
-          const icon = document.createElement("img");
-          icon.classList.add("icon");
-          figure.appendChild(icon);
-          figure.appendChild(image);
-          figure.appendChild(caption);
-          imgContainer.appendChild(figure);
-          fetchWorks();
-          /* Ajouter l'image à la galerie sans rechargement de la page*/
+      
+          if (dataResponse.id) {
+            updateGallery(dataResponse, "add");
+            mdl.classList.add("modalOpen");
+            mdl2.classList.remove("modalOpen2");
+          } else {
+            console.log("Invalid response format");
+          }
         } catch (error) {
-          console.log("il y a eu une erreur sur le fetch");
+          console.log("Error during fetch:", error);
         }
       }
     } else {
