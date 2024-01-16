@@ -38,6 +38,7 @@ async function updateGallery(result, action = "update") {
     figure.appendChild(img);
     figure.appendChild(figcaption);
     gallery.appendChild(figure);
+    //Si l'image est ajouté , ajout sur la modale
  
     }
   else {
@@ -137,6 +138,13 @@ async function deleteWorks(workId) {
 
     if (response.ok) {
       removeGalleryItem(workId);
+      fetch('http://localhost:5678/api/works')
+            .then(response => response.json())
+            .then(updatedData => {
+              updateGallery(updatedData); 
+            })
+            .catch(error => console.error('Error fetching updated data:', error));
+
     } else {
       console.error("Error deleting work.");
     }
