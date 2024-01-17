@@ -2,14 +2,6 @@ let allWorks = []; // Acces a tout les objets
 let categories = []; // Acces a toutes les categories
 const token = localStorage.token;
 
-async function fetchCategories() {
-  try {
-    const response = await fetch("http://localhost:5678/api/categories/");
-    categories = await response.json();
-  } catch (error) {
-    console.error("Erreur lors de la requête fetch categories:", error);
-  }
-}
 
 async function fetchWorks() {
   try {
@@ -38,10 +30,12 @@ async function updateGallery(result, action = "update") {
     figure.appendChild(img);
     figure.appendChild(figcaption);
     gallery.appendChild(figure);
-    //Si l'image est ajouté , ajout sur la modale
+    
+    //Si l'image est ajouté , ajout sur le fond
  
     }
   else {
+    
     gallery.innerHTML = ""; 
     result.forEach((item) => {
       const figure = document.createElement("figure");
@@ -53,13 +47,26 @@ async function updateGallery(result, action = "update") {
       figure.appendChild(img);
       figure.appendChild(figcaption);
       gallery.appendChild(figure);
+      
+      //Ajout de la gallery dynamiquement 
     });
   }
 }
 document.addEventListener("DOMContentLoaded", async () => {
   await fetchCategories();
   await fetchWorks();
+  
 });
+
+async function fetchCategories() {
+  try {
+    const response = await fetch("http://localhost:5678/api/categories/");
+    categories = await response.json();
+  } catch (error) {
+    console.error("Erreur lors de la requête fetch categories:", error);
+  }
+}
+//On récupere nos catègories via le fetch sur l'api
 
 async function trierParCategorie(categoryName) {
   const itemsContainer = document.querySelector(".gallery");
@@ -99,66 +106,6 @@ createCategoryButton("Hotels & restaurants", () =>
   trierParCategorie("Hotels & restaurants")
 );
 
-function createWorkItem(work) {
-  const imgContainer = document.querySelector(".imageContainer");
-  const figure = document.createElement("figure");
-
-  const imageModale = document.createElement("img");
-  imageModale.src = work.imageUrl;
-  imageModale.classList.add("image-modale");
-  figure.appendChild(imageModale);
-
-  const icon = document.createElement("i");
-  icon.classList.add("fa-trash-can", "fa-solid", "icon");
-  icon.id = `${work.id}`;
-  figure.appendChild(icon);
-
-  imgContainer.appendChild(figure);
-}
-
-function attachDeleteEventListeners() {
-  document.querySelectorAll(".icon").forEach((element) => {
-    element.addEventListener("click", (event) => {
-      event.preventDefault();
-      deleteWorks(element.id);
-    });
-  });
-}
-
-async function deleteWorks(workId) {
-  try {
-    const url = `http://localhost:5678/api/works/${workId}`;
-    const response = await fetch(url, {
-      method: "DELETE",
-      headers: {
-        Accept: "*/*",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      removeGalleryItem(workId);
-      fetch('http://localhost:5678/api/works')
-            .then(response => response.json())
-            .then(updatedData => {
-              updateGallery(updatedData); 
-            })
-            .catch(error => console.error('Error fetching updated data:', error));
-
-    } else {
-      console.error("Error deleting work.");
-    }
-  } catch (error) {
-    console.error("Error in delete request", error);
-  }
-}
-
-function removeGalleryItem(workId) {
-  const galleryItem = document.querySelector(`[data-work-id="${workId}"]`);
-  if (galleryItem) {
-    galleryItem.remove();
-  }
-}
 
 /* Mode édition quand login */
 const log = document.querySelector(".log");
@@ -177,7 +124,7 @@ function editionActive() {
     container.style = "display:none";
   }
 }
-
+//Quand le mode administrateur est activé
 editionActive();
 
 /* se déconnecter avec logout */
@@ -237,6 +184,75 @@ arrowBak.addEventListener("click", function () {
   mdl2.classList.remove("modalOpen2");
 });
 
+//Ajout des images sur la modale
+function createWorkItem(work) {
+  const imgContainer = document.querySelector(".imageContainer");
+
+  const figure = document.createElement("figure");
+
+  const imageModale = document.createElement("img");
+  imageModale.src = work.imageUrl;
+  imageModale.classList.add("image-modale");
+  figure.appendChild(imageModale);
+
+  const icon = document.createElement("i");
+  icon.classList.add("fa-trash-can", "fa-solid", "icon");
+  icon.id = `${work.id}`;
+  figure.appendChild(icon);
+
+  imgContainer.appendChild(figure);
+  
+  
+}
+//Fonction pour mettre le delete sur l'icone 
+function attachDeleteEventListeners() {
+  document.querySelectorAll(".icon").forEach((element) => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault();
+      deleteWorks(element.id);
+    });
+  });
+}
+
+//Fonction pour supprimer notre image via l'api
+async function deleteWorks(workId) {
+  try {
+    const url = `http://localhost:5678/api/works/${workId}`;
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Accept: "*/*",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      removeGalleryItem(workId);
+      fetch('http://localhost:5678/api/works')
+            .then(response => response.json())
+            .then(updatedData => {
+              updateGallery(updatedData);
+              const imgContainer = document.querySelector(".imageContainer");
+              imgContainer.innerHTML = "";
+              updatedData.forEach((work) => createWorkItem(work));
+              attachDeleteEventListeners();
+            })
+            .catch(error => console.error('Error fetching updated data:', error));
+
+    } else {
+      console.error("Error deleting work.");
+    }
+  } catch (error) {
+    console.error("Error in delete request", error);
+  }
+}
+//Fonction pour supprimer l'image de notre gallery
+function removeGalleryItem(workId) {
+  const galleryItem = document.querySelector(`[data-work-id="${workId}"]`);
+  if (galleryItem) {
+    galleryItem.remove();
+  }
+}
 //ajouter des projets au site//
 const newPicmodale = document.querySelector(".input-newPicture");
 const preview = document.querySelector(".importImg");
@@ -305,7 +321,8 @@ function addPicture() {
       
           if (dataResponse.id) {
             updateGallery(dataResponse, "add");
-            mdl.classList.add("modalOpen");
+            
+           mdl.classList.add("modalOpen");
             mdl2.classList.remove("modalOpen2");
           } else {
             console.log("Invalid response format");
